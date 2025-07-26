@@ -1,21 +1,23 @@
 # clauseiq_app.py
 # Streamlit App for ClauseIQ with CounterClause and LawyerConnect – Dashboard-Style UI (iPadOS Inspired)
+# Now using Google Gemini API for LLM decisions.
 
 import streamlit as st
 from sentence_transformers import SentenceTransformer
-import openai
 import faiss
 import json
+import requests # For making HTTP requests to the Gemini API
 
 # --- Load LLM and Embedding Model ---
 # Initialize the SentenceTransformer model for embeddings
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Get your OpenAI API key from Streamlit secrets.
-# This is the recommended secure way to handle API keys in Streamlit apps.
-# Ensure you have a .streamlit/secrets.toml file with OPENAI_API_KEY="your_key_here"
-# and that secrets.toml is NOT committed to your public GitHub repository.
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# --- Gemini API Configuration ---
+# The API key will be provided by the Canvas environment or Streamlit secrets.
+# For local testing, you might need to set it as an environment variable or in .streamlit/secrets.toml
+# For Streamlit Cloud, it will be injected via secrets.
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"] # Assuming the secret is named GEMINI_API_KEY
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 # --- Sample Clause Database ---
 # A list of sample insurance clauses for demonstration purposes.
@@ -57,7 +59,8 @@ def get_top_clause(user_query):
 
 def get_llm_decision(user_query, matched_clauses):
     """
-    Uses the OpenAI GPT-4 model to make a decision based on the user query and matched clauses.
+    Uses the Google Gemini API (gemini-2.0-flash) to make a decision
+    based on the user query and matched clauses.
 
     Args:
         user_query (str): The original query from the user.
@@ -66,11 +69,7 @@ def get_llm_decision(user_query, matched_clauses):
     Returns:
         str: A JSON string containing the decision, reason, counterclause, and clause reference.
     """
-    # Format the matched clauses into a context string for the LLM.
     context = "\n".join(matched_clauses)
-    # Construct the prompt for the OpenAI model.
-    # The prompt instructs the LLM to act as an insurance claim reasoning assistant
-    # and to respond strictly in JSON format.
     prompt = f"""
 You are an insurance claim reasoning assistant.
 User Query: "{user_query}"
@@ -85,13 +84,47 @@ Based on the clauses and query, respond with a JSON containing:
 
 Respond only with JSON.
 """
-    # Make a call to the OpenAI Chat Completion API using the gpt-4 model.
-    res = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}] # Pass the prompt as a user message.
-    )
-    # Extract and return the content of the model's response.
-    return res.choices[0].message['content']
+
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    params = {
+        'key': GEMINI_API_KEY
+    }
+    payload = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "responseMimeType": "application/json"
+        }
+    }
+
+    try:
+        response = requests.post(GEMINI_API_URL, headers=headers, params=params, json=payload)
+        response.raise_for_status() # Raise an exception for HTTP errors (4xx or 5xx)
+        result = response.json()
+
+        if result.get('candidates') and result['candidates'][0].get('content') and result['candidates'][0]['content'].get('parts'):
+            # Gemini API returns the JSON as a string within the 'text' part
+            json_string = result['candidates'][0]['content']['parts'][0]['text']
+            return json_string
+        else:
+            st.error(f"Gemini API response format unexpected: {result}")
+            return json.dumps({"decision": "error", "reason": "Unexpected API response format", "counterclause": "", "clause_reference": ""})
+
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error calling Gemini API: {e}")
+        return json.dumps({"decision": "error", "reason": f"API call failed: {e}", "counterclause": "", "clause_reference": ""})
+    except json.JSONDecodeError as e:
+        st.error(f"Error decoding JSON from Gemini API: {e}. Raw response: {response.text}")
+        return json.dumps({"decision": "error", "reason": f"Invalid JSON from API: {e}", "counterclause": "", "clause_reference": ""})
+
 
 # --- Streamlit UI ---
 # Configure the Streamlit page settings for a wide layout and a custom title/icon.
@@ -183,10 +216,15 @@ if user_query:
     with st.spinner("🔍 Analyzing your policy..."):
         # Get the top matching clauses from the FAISS index.
         top_clauses = get_top_clause(user_query)
-        # Get the AI's decision from the OpenAI model.
+        # Get the AI's decision from the Gemini model.
         decision = get_llm_decision(user_query, top_clauses)
         # Parse the JSON response from the LLM.
-        parsed = json.loads(decision)
+        try:
+            parsed = json.loads(decision)
+        except json.JSONDecodeError:
+            st.error("Failed to parse JSON response from Gemini. Please try again.")
+            parsed = {"decision": "error", "reason": "Invalid JSON response", "counterclause": "", "clause_reference": ""}
+
 
     # Indicate that the AI decision is complete.
     st.success("✅ AI Decision Complete")

@@ -1,4 +1,4 @@
 streamlit
 sentence-transformers
-openai==0.28
 faiss-cpu
+requests
