@@ -24,7 +24,7 @@ GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 # In a real application, this would be loaded from a more robust database.
 clauses = [
     "Clause 5.1: Surgery covered only after 4 months of continuous policy.",
-    "Clause 3.2: Surgery due to accident may be exempt from waiting period.",
+    "Clause 3.2: Surgery due to accident may be exempt from waiting period."
     "Clause 6.4: Portability clause allows prior policy duration to be counted."
 ]
 
@@ -201,14 +201,16 @@ st.markdown("""
         color: #5B42D1 !important; /* Force primary purple for headings */
     }
     /* Specific styling for st.caption to ensure readability */
-    .st-emotion-cache-10qj0zz p { /* This targets the paragraph inside st.caption */
+    /* Targeting Streamlit's internal element for caption */
+    div[data-testid="stCaptionContainer"] p {
         color: #333333 !important; /* Force dark gray for caption text */
     }
     /* Specific styling for st.metric labels and values */
-    .st-emotion-cache-10qj0zz div[data-testid="stMetricLabel"] div {
+    /* Targeting Streamlit's internal elements for metric label and value */
+    div[data-testid="stMetricLabel"] div {
         color: #5B42D1 !important; /* Force primary purple for metric labels */
     }
-    .st-emotion-cache-10qj0zz div[data-testid="stMetricValue"] {
+    div[data-testid="stMetricValue"] {
         color: #333333 !important; /* Force dark gray for metric values */
     }
 
@@ -316,3 +318,4 @@ if user_query:
             """
             # Provide a download button for the summary.
             st.download_button("Download Summary", summary, file_name="claim_summary.txt")
+
