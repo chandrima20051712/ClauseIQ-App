@@ -135,58 +135,94 @@ st.set_page_config(page_title="ClauseIQ Dashboard", page_icon="🧠", layout="wi
 # custom button styles, and a background image.
 st.markdown("""
     <style>
+    /* General body background to match the light, pastel feel */
     body {
-        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb');
-        background-size: cover;
+        background-color: #F8F8F8; /* Very light gray/off-white */
     }
+    /* Main content blocks (cards) */
     .main, .block-container {
-        background-color: rgba(255, 255, 255, 0.85) !important; /* Semi-transparent white background */
-        border-radius: 15px; /* Rounded corners for main content blocks */
-        padding: 1.5rem; /* Padding inside the content blocks */
+        background-color: #FFFFFF !important; /* Pure white for cards */
+        border-radius: 20px; /* Slightly more rounded corners */
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Soft shadow for depth */
     }
+    /* Buttons - primary action */
     .stButton > button {
-        background-color: #111827; /* Dark background for buttons */
-        color: #fff; /* White text for buttons */
+        background-color: #6A5ACD; /* A soft, rich purple */
+        color: #fff;
         border: none;
-        border-radius: 12px; /* Rounded corners for buttons */
-        padding: 0.6rem 1.2rem;
-        font-size: 15px;
-        transition: background-color 0.3s ease; /* Smooth transition on hover */
+        border-radius: 15px; /* More rounded buttons */
+        padding: 0.7rem 1.4rem;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 8px rgba(106, 90, 205, 0.3); /* Subtle purple shadow */
     }
     .stButton > button:hover {
-        background-color: #374151; /* Slightly lighter on hover */
+        background-color: #5B42D1; /* Slightly darker purple on hover */
+        transform: translateY(-2px); /* Slight lift effect */
     }
+    /* Download button - secondary action */
     .stDownloadButton > button {
-        background-color: #2563eb; /* Blue background for download button */
+        background-color: #87CEEB; /* A soft sky blue */
         color: white;
-        border-radius: 10px;
-        padding: 0.4rem 1rem;
-        transition: background-color 0.3s ease; /* Smooth transition on hover */
+        border-radius: 15px;
+        padding: 0.7rem 1.4rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 8px rgba(135, 206, 235, 0.3); /* Subtle blue shadow */
     }
     .stDownloadButton > button:hover {
-        background-color: #3b82f6; /* Slightly lighter blue on hover */
+        background-color: #7AC5E2; /* Slightly darker blue on hover */
+        transform: translateY(-2px);
     }
-    .stMarkdown, .markdown-text-container {
-        font-family: 'Helvetica Neue', sans-serif; /* Modern, clean font */
-        font-size: 16px;
-    }
-    /* Style for text input */
+    /* Text input fields */
     .stTextInput > div > div > input {
-        border-radius: 10px;
-        padding: 10px;
-        border: 1px solid #ccc;
+        border-radius: 15px; /* Rounded input fields */
+        padding: 12px 15px;
+        border: 1px solid #E0D9F3; /* Light lavender border */
+        background-color: #FBFBFC; /* Very light background */
+        color: #333333; /* Darker text for readability */
     }
-    /* Style for expander */
+    /* Expander headers */
     .streamlit-expanderHeader {
-        background-color: #f0f2f6;
+        background-color: #EFEFF6; /* Very light, subtle purple-gray */
+        border-radius: 15px;
+        padding: 12px 15px;
+        font-weight: bold;
+        color: #5B42D1; /* Purple text for expander header */
+    }
+    /* General Markdown text */
+    .stMarkdown, .markdown-text-container {
+        font-family: 'Helvetica Neue', sans-serif;
+        font-size: 16px;
+        color: #333333; /* Dark gray for body text */
+    }
+    /* Subheaders */
+    h1, h2, h3, h4, h5, h6 {
+        color: #5B42D1; /* Primary purple for headings */
+    }
+    /* Streamlit's default success/info/warning messages */
+    .stAlert {
         border-radius: 10px;
         padding: 10px;
+    }
+    /* Customizing Streamlit's default success message for softer green */
+    .stAlert.success {
+        background-color: #E6F7E6; /* Light pastel green */
+        color: #388E3C; /* Darker green text */
+        border-left: 5px solid #66BB6A; /* Green border */
+    }
+    /* Customizing Streamlit's default info message for softer blue */
+    .stAlert.info {
+        background-color: #E0F2F7; /* Light pastel blue */
+        color: #2196F3; /* Darker blue text */
+        border-left: 5px solid #64B5F6; /* Blue border */
     }
     </style>
 """, unsafe_allow_html=True)
 
 # Display a logo image and the main title of the application.
-st.image("https://cdn-icons-png.flaticon.com/512/1041/1041916.png", width=70)
+# Changed logo to match the softer aesthetic
+st.image("https://raw.githubusercontent.com/streamlit/streamlit/develop/docs/images/logo_icon_dark.png", width=70) # Using a placeholder for now, ideally a custom pastel icon
 st.title("🧠 ClauseIQ – Smart Insurance Decision Dashboard")
 st.caption("Claim eligibility, clause discovery, rebuttals & lawyer escalation – now seamless.")
 
@@ -268,3 +304,4 @@ if user_query:
             """
             # Provide a download button for the summary.
             st.download_button("Download Summary", summary, file_name="claim_summary.txt")
+
