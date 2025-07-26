@@ -194,12 +194,24 @@ st.markdown("""
     .stMarkdown, .markdown-text-container {
         font-family: 'Helvetica Neue', sans-serif;
         font-size: 16px;
-        color: #333333; /* Dark gray for body text */
+        color: #333333 !important; /* Force dark gray for body text */
     }
-    /* Subheaders */
+    /* Subheaders and Title */
     h1, h2, h3, h4, h5, h6 {
-        color: #5B42D1; /* Primary purple for headings */
+        color: #5B42D1 !important; /* Force primary purple for headings */
     }
+    /* Specific styling for st.caption to ensure readability */
+    .st-emotion-cache-10qj0zz p { /* This targets the paragraph inside st.caption */
+        color: #333333 !important; /* Force dark gray for caption text */
+    }
+    /* Specific styling for st.metric labels and values */
+    .st-emotion-cache-10qj0zz div[data-testid="stMetricLabel"] div {
+        color: #5B42D1 !important; /* Force primary purple for metric labels */
+    }
+    .st-emotion-cache-10qj0zz div[data-testid="stMetricValue"] {
+        color: #333333 !important; /* Force dark gray for metric values */
+    }
+
     /* Streamlit's default success/info/warning messages */
     .stAlert {
         border-radius: 10px;
@@ -304,4 +316,3 @@ if user_query:
             """
             # Provide a download button for the summary.
             st.download_button("Download Summary", summary, file_name="claim_summary.txt")
-
